@@ -1,0 +1,12 @@
+bind request 属性
+(可选) change-request
+(可选) response-port			16无符号整数，后面加2个byte凑数, 不能和padding，在请求中同时出现
+(可选) padding
+
+bind response属性
+(必选) mapped-address
+(必选) response-origin -> 等同于 source-address (rfc 3489)
+(必选) other-address  -> 等同于 changed-address (rfc 3489)
+(必选) xor-mapped-address
+
+
