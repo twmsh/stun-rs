@@ -1,8 +1,8 @@
 use crate::attrs::RawAttr;
 use crate::constants::HEADER_LEN;
+use crate::error::ParsePacketErr;
 use crate::header::Header;
 use bytes::{BufMut, Bytes, BytesMut};
-use crate::error::ParsePacketErr;
 
 // 是否是一个正确的stun 包
 // message_type 在范围内
@@ -45,8 +45,11 @@ impl Packet {
 
     pub fn unpack(mut buf_bytes: Bytes) -> Result<Self, ParsePacketErr> {
         if buf_bytes.len() < HEADER_LEN {
-            return Err(ParsePacketErr::BufSize(format!("header buf len:{} < {}",
-                                                       buf_bytes.len(), HEADER_LEN)));
+            return Err(ParsePacketErr::BufSize(format!(
+                "header buf len:{} < {}",
+                buf_bytes.len(),
+                HEADER_LEN
+            )));
         }
 
         let header_buf = buf_bytes.split_to(HEADER_LEN);
@@ -54,9 +57,11 @@ impl Packet {
         let origin_header_len = header.msg_len;
 
         if header.msg_len as usize != buf_bytes.len() {
-            return Err(ParsePacketErr::NotMatch(
-                format!("header len:{} != {}", header.msg_len, buf_bytes.len()))
-            );
+            return Err(ParsePacketErr::NotMatch(format!(
+                "header len:{} != {}",
+                header.msg_len,
+                buf_bytes.len()
+            )));
         }
 
         let mut attr_list = vec![];
@@ -72,10 +77,11 @@ impl Packet {
             println!("attr_len: {}", attr_len);
 
             if buf_bytes.len() < attr_len as usize + 4 {
-                return Err(ParsePacketErr::BufSize(
-                    format!("attr buf len:{} < {}",
-                            buf_bytes.len(),
-                            attr_len + 4)));
+                return Err(ParsePacketErr::BufSize(format!(
+                    "attr buf len:{} < {}",
+                    buf_bytes.len(),
+                    attr_len + 4
+                )));
             }
             let attr_buf = buf_bytes.split_to(attr_len as usize + 4);
             let attr = RawAttr::unpack(attr_buf)?;
@@ -86,13 +92,10 @@ impl Packet {
 
         let packet = Packet::new(header, attr_list);
         if packet.header.msg_len != origin_header_len {
-
-
-            return Err(ParsePacketErr::NotMatch(
-                format!("packet data len:{} != packet msg len:{}",
-                        packet.header.msg_len,
-                        origin_header_len)));
-
+            return Err(ParsePacketErr::NotMatch(format!(
+                "packet data len:{} != packet msg len:{}",
+                packet.header.msg_len, origin_header_len
+            )));
         }
 
         Ok(packet)

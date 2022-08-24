@@ -1,7 +1,7 @@
 use crate::attrs::RawAttr;
 use crate::constants::ATTR_PADDING;
-use bytes::Bytes;
 use crate::error::ParsePacketErr;
+use bytes::Bytes;
 
 #[derive(Debug, Clone)]
 pub struct PaddingAttr {
@@ -27,9 +27,10 @@ impl TryFrom<RawAttr> for PaddingAttr {
 
     fn try_from(base_attr: RawAttr) -> Result<Self, Self::Error> {
         if base_attr.value.len() % 8 != 0 {
-            return Err(ParsePacketErr::BadValue(
-                format!("padding attr buf len:{}", base_attr.value.len())
-            ));
+            return Err(ParsePacketErr::BadValue(format!(
+                "padding attr buf len:{}",
+                base_attr.value.len()
+            )));
         }
 
         Ok(Self {

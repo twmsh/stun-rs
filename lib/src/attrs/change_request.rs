@@ -1,8 +1,8 @@
 use crate::attrs::RawAttr;
 use crate::constants::*;
+use crate::error::ParsePacketErr;
 use bytes::{BufMut, BytesMut};
 use std::ops::Deref;
-use crate::error::ParsePacketErr;
 
 #[derive(Debug, Clone)]
 pub struct ChangeRequest {
@@ -40,9 +40,10 @@ impl TryFrom<RawAttr> for ChangeRequest {
 
     fn try_from(base_attr: RawAttr) -> Result<Self, Self::Error> {
         if base_attr.value.len() != 4 {
-            return Err(ParsePacketErr::BufSize(
-                format!("change_request attr len:{} !=4",base_attr.value.len())
-            ));
+            return Err(ParsePacketErr::BufSize(format!(
+                "change_request attr len:{} !=4",
+                base_attr.value.len()
+            )));
         }
 
         let value = base_attr.value.deref();

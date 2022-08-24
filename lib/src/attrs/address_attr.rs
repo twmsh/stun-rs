@@ -1,9 +1,9 @@
 use crate::attrs::RawAttr;
 use crate::constants::*;
+use crate::error::ParsePacketErr;
 use bytes::{BufMut, BytesMut};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::ops::Deref;
-use crate::error::ParsePacketErr;
 
 // 地址类的attribute
 //
@@ -60,8 +60,10 @@ impl TryFrom<RawAttr> for AddressAttr {
         let value = base_attr.value.deref();
 
         if value.len() < 4 {
-            return Err(ParsePacketErr::BufSize(format!("attr buf len:{}",
-                                                       value.len())));
+            return Err(ParsePacketErr::BufSize(format!(
+                "attr buf len:{}",
+                value.len()
+            )));
         }
 
         index += 1;
@@ -76,8 +78,7 @@ impl TryFrom<RawAttr> for AddressAttr {
             ATTR_FAMILY_IPV4 => {
                 // 4 bytes
                 if index + 4 > value.len() {
-                    return Err(ParsePacketErr::BufSize(
-                        "ipv4 buf len < 4".to_string()));
+                    return Err(ParsePacketErr::BufSize("ipv4 buf len < 4".to_string()));
                 }
                 let mut addr = [0_u8; 4];
                 addr.copy_from_slice(&value[index..index + 4]);
@@ -86,18 +87,14 @@ impl TryFrom<RawAttr> for AddressAttr {
             ATTR_FAMILY_IPV6 => {
                 // 16 bytes
                 if index + 16 > value.len() {
-                    return Err(ParsePacketErr::BufSize(
-                        "ipv6 buf len < 16".to_string()));
+                    return Err(ParsePacketErr::BufSize("ipv6 buf len < 16".to_string()));
                 }
                 let mut addr = [0_u8; 16];
                 addr.copy_from_slice(&value[index..index + 16]);
                 SocketAddr::new(IpAddr::V6(Ipv6Addr::from(addr)), port)
             }
             v => {
-                return Err(ParsePacketErr::BadValue(
-                    format!("ip family: {}",
-                            v)
-                ));
+                return Err(ParsePacketErr::BadValue(format!("ip family: {}", v)));
             }
         };
 

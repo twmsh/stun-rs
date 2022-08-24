@@ -3,13 +3,13 @@
 use crate::constants::*;
 use bytes::{BufMut, Bytes, BytesMut};
 
-use std::ops::Deref;
 use crate::error::ParsePacketErr;
+use std::ops::Deref;
 
 pub type TransId = [u8; TRANS_ID_LEN];
 
 // rfc 3489, 11.1
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct Header {
     pub msg_type: u16,
 
@@ -45,7 +45,11 @@ impl Header {
 
         // 只检查长度，不检查有效性
         if buf.len() < HEADER_LEN {
-            return Err(ParsePacketErr::BufSize(format!("header buf len:{} < {}",buf.len(),HEADER_LEN)));
+            return Err(ParsePacketErr::BufSize(format!(
+                "header buf len:{} < {}",
+                buf.len(),
+                HEADER_LEN
+            )));
         }
 
         let mut index = 0_usize;

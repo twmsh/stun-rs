@@ -1,8 +1,8 @@
 #![allow(clippy::len_without_is_empty)]
 
+use crate::error::ParsePacketErr;
 use bytes::{BufMut, Bytes, BytesMut};
 use std::ops::Deref;
-use crate::error::ParsePacketErr;
 
 pub mod address_attr;
 pub mod change_request;
@@ -46,8 +46,10 @@ impl RawAttr {
         let buf = buf_bytes.deref();
 
         if buf.len() < 4 {
-            return Err(ParsePacketErr::BufSize(
-                format!("attr buf len:{}",buf.len())));
+            return Err(ParsePacketErr::BufSize(format!(
+                "attr buf len:{}",
+                buf.len()
+            )));
         }
 
         let mut index = 0_usize;
@@ -57,8 +59,11 @@ impl RawAttr {
         let attr_len = u16::from_be_bytes([buf[index], buf[index + 1]]);
 
         if buf.len() < (attr_len + 4) as usize {
-            return Err(ParsePacketErr::BufSize(format!("attr buf len:{} < {}",
-                                                       buf.len(),attr_len + 4)));
+            return Err(ParsePacketErr::BufSize(format!(
+                "attr buf len:{} < {}",
+                buf.len(),
+                attr_len + 4
+            )));
         }
 
         index += 2;

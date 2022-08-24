@@ -1,4 +1,3 @@
-
 #![allow(clippy::vec_init_then_push)]
 
 use std::net::{Ipv6Addr, SocketAddr, SocketAddrV6};
@@ -81,7 +80,6 @@ pub fn test_new_req_packet() {
 
 #[test]
 pub fn test_unpack_req() {
-
     let trans_id = util::new_trans_id();
 
     let header = Header::new(MESSAGE_TYPE_BIND_REQ, 0, trans_id);
@@ -124,6 +122,4 @@ pub fn test_unpack_response() {
     println!("----------------------");
     let packet = Packet::unpack(buf).unwrap();
     println!("{:?}", packet);
-
 }
-

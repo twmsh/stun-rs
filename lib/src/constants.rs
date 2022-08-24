@@ -22,4 +22,3 @@ pub const ATTR_RESPONSE_PORT: u16 = 0x0027;
 pub const ATTR_XOR_MAPPED_ADDRESS: u16 = 0x8020;
 pub const ATTR_RESPONSE_ORIGIN: u16 = 0x802b;
 pub const ATTR_OTHER_ADDRESS: u16 = 0x802c;
-

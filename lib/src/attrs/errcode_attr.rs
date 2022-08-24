@@ -2,9 +2,9 @@ use std::ops::Deref;
 
 use crate::attrs::RawAttr;
 use crate::constants::ATTR_ERROR_CODE;
+use crate::error::ParsePacketErr;
 use crate::util;
 use bytes::{BufMut, BytesMut};
-use crate::error::ParsePacketErr;
 
 // class:  3 bit        1-6
 // number: 8 bit        0-99
@@ -41,9 +41,10 @@ impl TryFrom<RawAttr> for ErrcodeAttr {
 
     fn try_from(base_attr: RawAttr) -> Result<Self, Self::Error> {
         if base_attr.value.len() < 4 {
-            return Err(ParsePacketErr::BufSize(
-                format!("err_code attr buf len:{} < 4",base_attr.value.len())
-            ));
+            return Err(ParsePacketErr::BufSize(format!(
+                "err_code attr buf len:{} < 4",
+                base_attr.value.len()
+            )));
         }
 
         // 从 value中解析

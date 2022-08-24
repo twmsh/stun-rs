@@ -1,9 +1,7 @@
 #[derive(Debug)]
 pub enum Error {
     Parse(ParsePacketErr),
-
 }
-
 
 #[derive(Debug)]
 pub enum ParsePacketErr {
