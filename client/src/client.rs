@@ -77,10 +77,10 @@ fn new_request(
 pub async fn probe_nat(sock: &UdpSocket, server: SocketAddr) {
     match probe_nat_1(sock, server).await {
         Ok(v) => {
-            debug!("mapped_address: {}", v.mapped_address);
-            debug!("response_origin: {}", v.response_origin);
-            debug!("other_address: {}", v.other_address);
-            debug!("xor_mapped_address: {}", v.xor_mapped_address);
+            debug!("mapped_address:    {}", v.mapped_address);
+            debug!("response_origin:   {}", v.response_origin);
+            debug!("other_address:     {}", v.other_address);
+            debug!("xor_mapped_address:{}", v.xor_mapped_address);
         }
         Err(e) => {
             error!("error, probe_nat_1, {:?}", e);
