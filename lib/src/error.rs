@@ -1,7 +1,10 @@
 #[derive(Debug)]
 pub enum Error {
     Parse(ParsePacketErr),
+    Validate(ValidateErr),
 }
+#[derive(Debug)]
+pub struct ValidateErr(pub String);
 
 #[derive(Debug)]
 pub enum ParsePacketErr {
@@ -19,4 +22,8 @@ pub enum ParsePacketErr {
 
     // attribute过多
     TooManyAttrs,
+}
+
+pub trait AttrValidator {
+    fn validate(&self) -> Option<ValidateErr>;
 }

@@ -95,6 +95,8 @@ pub fn test_unpack_req() {
     println!("{}", util::print_bytes(&buf, " ", 8));
     println!("----------------------");
     let packet = Packet::unpack(buf).unwrap();
+    assert!(packet.validate().is_none());
+
     println!("{:?}", packet);
 }
 
@@ -121,5 +123,6 @@ pub fn test_unpack_response() {
     println!("{}", util::print_bytes(&buf, " ", 8));
     println!("----------------------");
     let packet = Packet::unpack(buf).unwrap();
+    assert!(packet.validate().is_none());
     println!("{:?}", packet);
 }

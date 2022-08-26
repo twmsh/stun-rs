@@ -3,7 +3,7 @@
 use crate::constants::*;
 use bytes::{BufMut, Bytes, BytesMut};
 
-use crate::error::ParsePacketErr;
+use crate::error::{ParsePacketErr, ValidateErr};
 use std::ops::Deref;
 
 pub type TransId = [u8; TRANS_ID_LEN];
@@ -67,5 +67,19 @@ impl Header {
             msg_len,
             trans_id,
         })
+    }
+
+    pub fn validate(&self) -> Option<ValidateErr> {
+        // 检查 stun message type
+
+        if self.msg_type == MESSAGE_TYPE_BIND_REQ
+            || self.msg_type == MESSAGE_TYPE_BIND_RES
+            || self.msg_type == MESSAGE_TYPE_BIND_ERR_RES
+        {
+            return None;
+        }
+
+        let err_msg = format!("not support message type: {}", self.msg_type);
+        Some(ValidateErr(err_msg))
     }
 }

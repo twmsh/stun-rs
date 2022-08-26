@@ -38,6 +38,8 @@ fn parse_ip(s: &str) -> Result<IpAddr, String> {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let app = Command::new(APP_NAME)
         .version(APP_VERSION)
         .about("a small stun server")
@@ -82,6 +84,13 @@ async fn main() {
     let port1: u16 = *app.get_one("port1").expect("wrong port1");
     let port2: u16 = *app.get_one("port2").expect("wrong port2");
 
+    if ip1 == ip2 {
+        panic!("error, ip1 equal ip2");
+    }
+    if port1 == port2 {
+        panic!("error, port1 equal port2");
+    }
+
     debug!("ip:{},{}  port:{},{}", ip1, ip2, port1, port2);
 
     let (signal_tx, signal_rx) = watch::channel(0_u8);
@@ -96,7 +105,7 @@ async fn main() {
         };
     });
 
-    let server = match Server::new(ip1, ip2, port1, port2, signal_rx).await {
+    let server = match Server::new([ip1, ip2], [port1, port2], signal_rx).await {
         Ok(v) => v,
         Err(e) => {
             panic!("error, {:?}", e);

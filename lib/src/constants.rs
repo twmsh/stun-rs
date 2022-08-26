@@ -4,6 +4,8 @@ pub const MAGIC_COOKIE: [u8; 4] = [0x21, 0x12, 0xA4, 0x42];
 pub const TRANS_ID_LEN: usize = 16;
 pub const HEADER_LEN: usize = 20;
 
+pub const ERROR_CODE_BAD_REQUEST: u16 = 400;
+
 pub const MESSAGE_TYPE_BIND_REQ: u16 = 0x0001;
 pub const MESSAGE_TYPE_BIND_RES: u16 = 0x0101;
 pub const MESSAGE_TYPE_BIND_ERR_RES: u16 = 0x0111;

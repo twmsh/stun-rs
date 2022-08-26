@@ -1,6 +1,6 @@
 use crate::attrs::RawAttr;
 use crate::constants::*;
-use crate::error::ParsePacketErr;
+use crate::error::{AttrValidator, ParsePacketErr, ValidateErr};
 use bytes::{BufMut, BytesMut};
 use std::ops::Deref;
 
@@ -55,5 +55,11 @@ impl TryFrom<RawAttr> for ChangeRequest {
             change_ip,
             change_port,
         })
+    }
+}
+
+impl AttrValidator for ChangeRequest {
+    fn validate(&self) -> Option<ValidateErr> {
+        None
     }
 }

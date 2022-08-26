@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use crate::attrs::RawAttr;
 use crate::constants::ATTR_ERROR_CODE;
-use crate::error::ParsePacketErr;
+use crate::error::{AttrValidator, ParsePacketErr, ValidateErr};
 use crate::util;
 use bytes::{BufMut, BytesMut};
 
@@ -65,5 +65,15 @@ impl TryFrom<RawAttr> for ErrcodeAttr {
         };
 
         Ok(Self { code, msg })
+    }
+}
+impl AttrValidator for ErrcodeAttr {
+    fn validate(&self) -> Option<ValidateErr> {
+        if self.code > 100 && self.code < 700 {
+            return None;
+        }
+
+        let err_msg = format!("wrong code: {}", self.code);
+        Some(ValidateErr(err_msg))
     }
 }

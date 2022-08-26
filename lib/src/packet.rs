@@ -1,8 +1,14 @@
+use crate::attrs;
+use crate::attrs::address_attr::AddressAttr;
+use crate::attrs::errcode_attr::ErrcodeAttr;
+use crate::attrs::response_port::ResponsePort;
+use crate::attrs::xor_address::XorMappedAddress;
 use crate::attrs::RawAttr;
-use crate::constants::HEADER_LEN;
-use crate::error::ParsePacketErr;
+use crate::constants::*;
+use crate::error::{AttrValidator, ParsePacketErr, ValidateErr};
 use crate::header::Header;
 use bytes::{BufMut, Bytes, BytesMut};
+use std::fmt::Debug;
 
 // 是否是一个正确的stun 包
 // message_type 在范围内
@@ -30,6 +36,11 @@ impl Packet {
 
     pub fn add_attr(&mut self, attr: RawAttr) {
         self.attrs.push(attr);
+        self.update_header_len();
+    }
+
+    pub fn add_attrs(&mut self, mut attrs: Vec<RawAttr>) {
+        self.attrs.append(&mut attrs);
         self.update_header_len();
     }
 
@@ -99,5 +110,53 @@ impl Packet {
         }
 
         Ok(packet)
+    }
+
+    pub fn validate(&self) -> Option<ValidateErr> {
+        if let Some(v) = self.header.validate() {
+            return Some(v);
+        }
+
+        for v in self.attrs.iter() {
+            if AddressAttr::is_like_mapped_addr(v.attr_type) {
+                if let Some(e) = validate_attr::<AddressAttr>(v) {
+                    return Some(e);
+                }
+            }
+            if v.attr_type == ATTR_ERROR_CODE {
+                if let Some(e) = validate_attr::<ErrcodeAttr>(v) {
+                    return Some(e);
+                }
+            }
+            if v.attr_type == ATTR_RESPONSE_PORT {
+                if let Some(e) = validate_attr::<ResponsePort>(v) {
+                    return Some(e);
+                }
+            }
+            if v.attr_type == ATTR_XOR_MAPPED_ADDRESS {
+                let xor = match XorMappedAddress::from_base_attr(v.clone(), &self.header.trans_id) {
+                    Ok(v) => v,
+                    Err(e) => return Some(ValidateErr(format!("{:?}", e))),
+                };
+
+                if let Some(e) = xor.validate() {
+                    return Some(e);
+                }
+            }
+        }
+
+        None
+    }
+}
+
+fn validate_attr<T>(raw_attr: &RawAttr) -> Option<ValidateErr>
+where
+    T: AttrValidator + TryFrom<RawAttr>,
+    <T as std::convert::TryFrom<attrs::RawAttr>>::Error: Debug,
+{
+    let attr: Result<T, _> = raw_attr.clone().try_into();
+    match attr {
+        Ok(v) => v.validate(),
+        Err(e) => Some(ValidateErr(format!("{:?}", e))),
     }
 }

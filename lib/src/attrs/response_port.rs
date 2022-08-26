@@ -1,6 +1,6 @@
 use crate::attrs::RawAttr;
 use crate::constants::*;
-use crate::error::ParsePacketErr;
+use crate::error::{AttrValidator, ParsePacketErr, ValidateErr};
 use bytes::{BufMut, BytesMut};
 use std::ops::Deref;
 
@@ -41,5 +41,19 @@ impl TryFrom<RawAttr> for ResponsePort {
         let port = u16::from_be_bytes([value[0], value[1]]);
 
         Ok(Self { port })
+    }
+}
+
+impl AttrValidator for ResponsePort {
+    fn validate(&self) -> Option<ValidateErr> {
+        // 检查 port
+
+        let port = self.port;
+        if port > 0 && port < 65535 {
+            return None;
+        }
+
+        let err_msg = format!("wrong port: {}", self.port);
+        Some(ValidateErr(err_msg))
     }
 }

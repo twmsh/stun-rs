@@ -1,6 +1,6 @@
 use crate::attrs::RawAttr;
 use crate::constants::*;
-use crate::error::ParsePacketErr;
+use crate::error::{AttrValidator, ParsePacketErr, ValidateErr};
 use bytes::{BufMut, BytesMut};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::ops::Deref;
@@ -21,6 +21,14 @@ pub struct AddressAttr {
 impl AddressAttr {
     pub fn new(attr_type: u16, address: SocketAddr) -> Self {
         Self { attr_type, address }
+    }
+
+    pub fn is_like_mapped_addr(attr_type: u16) -> bool {
+        attr_type == ATTR_MAPPED_ADDRESS
+            || attr_type == ATTR_SOURCE_ADDRESS
+            || attr_type == ATTR_CHANGED_ADDRESS
+            || attr_type == ATTR_OTHER_ADDRESS
+            || attr_type == ATTR_RESPONSE_ORIGIN
     }
 }
 
@@ -99,5 +107,29 @@ impl TryFrom<RawAttr> for AddressAttr {
         };
 
         Ok(Self { attr_type, address })
+    }
+}
+
+impl AttrValidator for AddressAttr {
+    fn validate(&self) -> Option<ValidateErr> {
+        // 检查 attr type
+        if !(self.attr_type == ATTR_MAPPED_ADDRESS
+            || self.attr_type == ATTR_SOURCE_ADDRESS
+            || self.attr_type == ATTR_CHANGED_ADDRESS
+            || self.attr_type == ATTR_OTHER_ADDRESS
+            || self.attr_type == ATTR_RESPONSE_ORIGIN)
+        {
+            return Some(ValidateErr(format!("wrong attr_type: {}", self.attr_type)));
+        }
+
+        // 检查 port
+
+        let port = self.address.port();
+        if port > 0 && port < 65535 {
+            return None;
+        }
+
+        let err_msg = format!("wrong port: {}", port);
+        Some(ValidateErr(err_msg))
     }
 }

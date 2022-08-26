@@ -1,5 +1,5 @@
 ## stun-rs
-a small stun library implemented with Rust 
+a minimal stun library implemented with Rust 
 
 - protocol library
 - stun server app

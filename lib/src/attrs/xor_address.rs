@@ -4,7 +4,7 @@ use bytes::{BufMut, BytesMut};
 use std::net::SocketAddr;
 
 use crate::attrs::address_attr::AddressAttr;
-use crate::error::ParsePacketErr;
+use crate::error::{AttrValidator, ValidateErr};
 use crate::header::TransId;
 use crate::util;
 
@@ -24,8 +24,17 @@ impl XorMappedAddress {
         Self { trans_id, address }
     }
 
-    pub fn from_base_attr(base_attr: RawAttr, trans_id: &TransId) -> Result<Self, ParsePacketErr> {
-        let address_attr: AddressAttr = base_attr.try_into()?;
+    pub fn from_base_attr(base_attr: RawAttr, trans_id: &TransId) -> Result<Self, String> {
+        let address_attr: AddressAttr = match base_attr.try_into() {
+            Ok(v) => v,
+            Err(e) => {
+                return Err(format!("{:?}", e));
+            }
+        };
+
+        if address_attr.attr_type != ATTR_XOR_MAPPED_ADDRESS {
+            return Err(format!("wrong attr type: {}", address_attr.attr_type));
+        }
 
         let address = match address_attr.address {
             SocketAddr::V4(v) => SocketAddr::V4(util::xor_address_v4(v)),
@@ -63,5 +72,19 @@ impl From<XorMappedAddress> for RawAttr {
         let value = bytes_buf.freeze();
 
         RawAttr::new(ATTR_XOR_MAPPED_ADDRESS, value)
+    }
+}
+
+impl AttrValidator for XorMappedAddress {
+    fn validate(&self) -> Option<ValidateErr> {
+        // 检查 port
+
+        let port = self.address.port();
+        if port > 0 && port < 65535 {
+            return None;
+        }
+
+        let err_msg = format!("wrong port: {}", port);
+        Some(ValidateErr(err_msg))
     }
 }

@@ -1,6 +1,6 @@
 use crate::attrs::RawAttr;
 use crate::constants::ATTR_PADDING;
-use crate::error::ParsePacketErr;
+use crate::error::{AttrValidator, ParsePacketErr, ValidateErr};
 use bytes::Bytes;
 
 #[derive(Debug, Clone)]
@@ -36,5 +36,11 @@ impl TryFrom<RawAttr> for PaddingAttr {
         Ok(Self {
             data: base_attr.value,
         })
+    }
+}
+
+impl AttrValidator for PaddingAttr {
+    fn validate(&self) -> Option<ValidateErr> {
+        None
     }
 }
