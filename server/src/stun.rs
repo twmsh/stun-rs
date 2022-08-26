@@ -13,6 +13,7 @@ use tokio::net::UdpSocket;
 
 use stun_rs::header::Header;
 use stun_rs::packet::Packet;
+use stun_rs::util::print_bytes;
 
 pub fn parse_request(buf: Bytes) -> Result<Packet, String> {
     Packet::unpack(buf).map_err(|x| format!("{:?}", x))
@@ -176,7 +177,13 @@ pub async fn send_response(
     let data = res.pack();
     match socket.send_to(&data, dst_addr).await {
         Ok(v) => {
-            debug!("{} ---> {}, sent {} bytes", src_addr, dst_addr, v);
+            debug!(
+                "{} ---> {}\n{}",
+                src_addr,
+                dst_addr,
+                print_bytes(&data, " ", 8)
+            );
+            debug!("sent: {}", v);
         }
         Err(e) => {
             error!("error, {} ---> {}, {:?}", src_addr, dst_addr, e);

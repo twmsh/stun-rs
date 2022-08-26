@@ -74,7 +74,12 @@ dependencies = [
 name = "client"
 version = "0.1.0"
 dependencies = [
+ "bytes",
+ "clap",
+ "env_logger",
+ "log",
  "stun-rs",
+ "tokio",
 ]
 
 [[package]]

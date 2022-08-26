@@ -15,6 +15,7 @@ use tokio::sync::watch::Receiver as WatchReceiver;
 
 use bytes::Bytes;
 use log::{debug, error};
+use stun_rs::util::print_bytes;
 
 use crate::stun::{get_bad_response, get_response, parse_request, send_response, validate_req};
 
@@ -96,6 +97,7 @@ async fn init_socket(
         for port in ports {
             let pair = SocketAddr::new(ip, port);
             let socket = UdpSocket::bind(pair).await?;
+            debug!("listening: {:?}", socket.local_addr());
             sockets.insert(pair, Arc::new(socket));
         }
     }
@@ -115,6 +117,10 @@ async fn recv_udp(
         tokio::select! {
             Ok((len,remote_addr)) = socket.recv_from(&mut buf) => {
                 let data = Bytes::copy_from_slice(&buf[..len]);
+
+                debug!("recv len: {}", data.len());
+                debug!("{} <--- {}\n{}",local_addr,remote_addr,print_bytes(&data," ",8));
+
                 match sender.send((local_addr,remote_addr,data)).await {
                     Ok(_) => {}
                     Err(e) => {
