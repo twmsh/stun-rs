@@ -16,7 +16,7 @@ pub async fn wait_shutdown() {
 pub async fn wait_shutdown() {
     use tokio::signal::unix::SignalKind;
     async fn terminate() -> std::io::Result<()> {
-        let signal = match tokio::signal::unix::signal(SignalKind::terminate()) {
+        let mut signal = match tokio::signal::unix::signal(SignalKind::terminate()) {
             Ok(v) => v,
             Err(e) => {
                 debug!("error, signal, {:?}", e);
