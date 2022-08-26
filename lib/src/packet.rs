@@ -85,7 +85,6 @@ impl Packet {
             }
 
             let attr_len = u16::from_be_bytes([buf_bytes[2], buf_bytes[3]]);
-            println!("attr_len: {}", attr_len);
 
             if buf_bytes.len() < attr_len as usize + 4 {
                 return Err(ParsePacketErr::BufSize(format!(

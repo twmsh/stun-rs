@@ -2,6 +2,7 @@ use std::net::{IpAddr, SocketAddr};
 
 use clap::builder::ValueParser;
 use clap::{Arg, Command};
+use log::debug;
 use client::client::probe_nat;
 use tokio::net::UdpSocket;
 
@@ -87,7 +88,7 @@ async fn main() {
         .expect("can't bind");
 
     let local_addr = sock.local_addr();
-    println!("local addr: {:?}", local_addr);
+    debug!("local addr: {:?}", local_addr);
 
     probe_nat(&sock, server).await;
 }
